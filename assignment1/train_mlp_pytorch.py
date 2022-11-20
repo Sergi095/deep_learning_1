@@ -297,6 +297,7 @@ if __name__ == '__main__':
     parser.add_argument('--data_dir', default='data/', type=str,
                         help='Data directory where to store/find the CIFAR10 dataset.')
 
+
     args = parser.parse_args()
     kwargs = vars(args)
     model, val_accuracies, test_accuracy, logging_info = train(**kwargs)
@@ -304,21 +305,26 @@ if __name__ == '__main__':
 
 
     # Feel free to add any additional functions, such as plotting of the loss curve here
+    import seaborn as sns
     import matplotlib.pyplot as plt
     plt.figure()
     plt.title('Loss curve')
     plt.plot(np.arange(0, args.epochs, 1), logging_info['loss'])
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.savefig('loss curve pytorch')
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.savefig('pytorch mlp loss')
     plt.show()
 
     plt.figure()
     plt.title('Validation Accuracy curve')
     plt.plot(val_accuracies, label='validation_accuracies')
     plt.plot(logging_info['train accuracies'], label='Train_accuracies')
-    plt.plot()
-    plt.xlabel('Epochs')
+    plt.xlabel('epochs')
     plt.ylabel('accuracy')
-    plt.savefig('validation accuracy pytorch')
+    plt.savefig('pytorch mlp accuracy')
+    plt.legend()
+    plt.show()
+
+    sns.heatmap(logging_info['conf_mat'], annot=True)
+    plt.savefig('confusion matrix pytorch')
     plt.show()
