@@ -123,7 +123,7 @@ def evaluate_model(model, data_loader, num_classes=10):
     #######################
     # END OF YOUR CODE    #
     #######################
-    return metrics
+    return metrics, conf_mat
 
 
 def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
@@ -192,10 +192,12 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
     loss_module = nn.CrossEntropyLoss()
     opt = optim.SGD(model.parameters(), lr)
     # TODO: Add any information you might want to save for plotting
-    logging_info = []
+    logging_info = {}
     # TODO: Training loop including validation
     models = {}
     val_accuracies_epoch = {}
+    train_accuracies_epoch  = {}
+    epoch_losses = {}
     # Simplified training loop
     for epoch in range(epochs):
         epoch = epoch + 1
@@ -228,11 +230,11 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
         model_ = deepcopy(model)
         models[epoch] = model_
         # epoch evaluation
-        train_epoch_metrics = evaluate_model(model,
+        train_epoch_metrics, _ = evaluate_model(model,
                                           cifar10_loader['train'],
                                           n_classes)
 
-        val_epoch_metrics = evaluate_model(model,
+        val_epoch_metrics, _ = evaluate_model(model,
                                           cifar10_loader['validation'],
                                           n_classes)
         print('\n ')
@@ -241,8 +243,12 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
         print(f"epoch #{epoch}, mean loss: {np.mean(epoch_loss)}")
         print('\n ')
 
+        train_accuracies_epoch[epoch] = train_epoch_metrics['accuracy']
         val_accuracies_epoch[epoch] = val_epoch_metrics['accuracy']
-        logging_info.append(np.mean(epoch_loss))
+        epoch_losses[epoch] = np.mean(epoch_loss)
+
+    logging_info['train accuracies'] = list(train_accuracies_epoch.values())
+    logging_info['loss'] = list(epoch_losses.values())
     val_accuracies = list(val_accuracies_epoch.values())
     # TODO: Test best model
     best_model = max(val_accuracies_epoch, key=val_accuracies_epoch.get)
@@ -250,9 +256,13 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
     print("TESTING ...")
     model = models[best_model]
 
-    test_metrics = evaluate_model(model,
+    test_metrics, conf_mat = evaluate_model(model,
                                   cifar10_loader['test'],
                                   n_classes)
+    logging_info['conf_mat'] = conf_mat
+    for metrics, result in test_metrics.items():
+        if metrics != 'accuracy':
+            logging_info[metrics] = result
     test_accuracy = test_metrics['accuracy']
     print(f'Test Accuracy: {test_accuracy}')
     #######################
@@ -265,13 +275,13 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
 if __name__ == '__main__':
     # Command line arguments
     parser = argparse.ArgumentParser()
-    
+
     # Model hyperparameters
     parser.add_argument('--hidden_dims', default=[128], type=int, nargs='+',
                         help='Hidden dimensionalities to use inside the network. To specify multiple, use " " to separate them. Example: "256 128"')
     parser.add_argument('--use_batch_norm', action='store_true',
                         help='Use this option to add Batch Normalization layers to the MLP.')
-    
+
     # Optimizer hyperparameters
     parser.add_argument('--lr', default=0.1, type=float,
                         help='Learning rate to use')
@@ -289,6 +299,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     kwargs = vars(args)
     model, val_accuracies, test_accuracy, logging_info = train(**kwargs)
+
+
 
     # Feel free to add any additional functions, such as plotting of the loss curve here
     import matplotlib.pyplot as plt

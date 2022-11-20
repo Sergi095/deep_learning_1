@@ -52,9 +52,52 @@ def train_models(results_filename):
     # PUT YOUR CODE HERE  #
     #######################
     # TODO: Run all hyperparameter configurations as requested
-    learning_rates = [0.1,1,10] # question 2.3
+    q_2_4 = 10 ** np.linspace(-6, 2, 9) # question 2.4
+    q_2_5 = [[128],[256,128],[512, 256, 128]] # question 2.5
 
-    results = None
+    results = {'q_2_4': {'train accuracy': [],
+                         'validation accuracy': [],
+                         'test accuracy': [],
+                         'loss': [],
+                         'conf_mat': []},
+
+               'q_2_5': {'train accuracy': [],
+                         'validation accuracy': [],
+                         'test accuracy': [],
+                         'loss': [],
+                         'conf_mat': []}}
+
+    for learning_rate in q_2_4:
+        epochs = 10
+        lr = learning_rate
+        hidden_dims = [128]
+        batch_size = 128
+        use_batch_norm = False
+        dir = "data/"
+        seed = 42
+        model, val_accuracies, test_accuracy, logging_info = train_mlp_pytorch.train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, dir)
+        results['q_2_4']['train accuracy'].append(logging_info['train accuracies'])
+        results['q_2_4']['validation accuracy'].append(val_accuracies)
+        results['q_2_4']['test accuracy'].append(test_accuracy)
+        results['q_2_4']['loss'].append(logging_info['loss'])
+        results['q_2_4']['confusion matrix'].append(logging_info['conf_mat'])
+    for hidden_dims in q_2_5:
+        lr = 0.1
+        epochs = 20
+        batch_size = 128
+        use_batch_norm = True
+        dir = "data/"
+        seed = 42
+        model, val_accuracies, test_accuracy, logging_info = train_mlp_pytorch.train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, dir)
+        results['q_2_5']['train accuracy'].append(logging_info['train accuracies'])
+        results['q_2_5']['validation accuracy'].append(val_accuracies)
+        results['q_2_5']['test accuracy'].append(test_accuracy)
+        results['q_2_5']['loss'].append(logging_info['loss'])
+        results['q_2_5']['confusion matrix'].append(logging_info['conf_mat'])
+
+
+    with open(results_filename, "a") as f:
+        f.write(results)
     # TODO: Save all results in a file with the name 'results_filename'. This can e.g. by a json file
     #######################
     # END OF YOUR CODE    #

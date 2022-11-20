@@ -295,7 +295,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     kwargs = vars(args)
 
-    model, val_accuracies, test_accuracy, logging_dict = train(**kwargs)
+    model, val_accuracies, test_accuracy, logging_dict, conf_mat = train(**kwargs)
     # Feel free to add any additional functions, such as plotting of the loss curve here
     import matplotlib.pyplot as plt
 
