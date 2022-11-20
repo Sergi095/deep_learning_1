@@ -85,6 +85,7 @@ def train_models(results_filename):
                                                                                      epochs,
                                                                                      seed,
                                                                                      dir)
+
         results['q_2_4']['train accuracy'].append(logging_info['train accuracies'])
         results['q_2_4']['validation accuracy'].append(val_accuracies)
         results['q_2_4']['test accuracy'].append(test_accuracy)
@@ -105,6 +106,7 @@ def train_models(results_filename):
                                                                                      epochs,
                                                                                      seed,
                                                                                      dir)
+
         results['q_2_5']['train accuracy'].append(logging_info['train accuracies'])
         results['q_2_5']['validation accuracy'].append(val_accuracies)
         results['q_2_5']['test accuracy'].append(test_accuracy)
@@ -141,6 +143,7 @@ def plot_results(results_filename):
     lrs = 10 ** np.linspace(-6, 2, 9)
     hidden_dims = [[128],[256,128],[512, 256, 128]]
 
+    plt.figure()
     plt.title('Loss curve PyTorch')
     plt.plot(np.array(results['q_2_4']['loss']).T)
     plt.legend([f'lr = {lr}' for lr in lrs])
@@ -163,7 +166,7 @@ def plot_results(results_filename):
         plt.xlabel('epochs')
         plt.ylabel('accuracy')
         plt.figure()
-        plt.title(f'Validation Accuracy curve with hidden_dims = {n_hidden}')
+        plt.title(f'Validation Accuracy curve with hidden_dims = {i}_{n_hidden}')
         plt.plot(np.array(results['q_2_5']['validation accuracy'][i]).T)
         plt.xlabel('epochs')
         plt.ylabel('accuracy')
