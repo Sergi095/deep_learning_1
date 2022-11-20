@@ -304,6 +304,7 @@ if __name__ == '__main__':
     plt.plot(np.arange(0, args.epochs, 1), logging_dict['losses'])
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
+    plt.savefig('numpy mlp loss')
     plt.show()
 
     plt.figure()
@@ -312,5 +313,6 @@ if __name__ == '__main__':
     plt.plot(logging_dict['Train_accuracies'], label='Train_accuracies')
     plt.xlabel('Epochs')
     plt.ylabel('accuracy')
+    plt.savefig('numpy mlp accuracy')
     plt.legend()
     plt.show()
