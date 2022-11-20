@@ -75,6 +75,7 @@ def train_models(results_filename):
         use_batch_norm = False
         dir = "data/"
         seed = 42
+        print(f'learning_rate {lr}')
         model, val_accuracies, test_accuracy, logging_info = train_mlp_pytorch.train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, dir)
         results['q_2_4']['train accuracy'].append(logging_info['train accuracies'])
         results['q_2_4']['validation accuracy'].append(val_accuracies)
@@ -82,6 +83,7 @@ def train_models(results_filename):
         results['q_2_4']['loss'].append(logging_info['loss'])
         results['q_2_4']['confusion matrix'].append(logging_info['conf_mat'])
     for hidden_dims in q_2_5:
+        print(f'hidden dims {hidden_dims}')
         lr = 0.1
         epochs = 20
         batch_size = 128
