@@ -111,12 +111,15 @@ def evaluate_model(model, data_loader, num_classes=10):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     conf_mat = torch.zeros((num_classes, num_classes))
     for input_data, targets in data_loader:
         batch_size = input_data.shape[0] # batch size
         n_features = np.prod(input_data.shape[1:])
                                         #128,       #32*32*3
         input_data = input_data.reshape((batch_size, n_features)) # X R^batch_Size X N
+        # todevice
+        input_data = input_data.to(device)
         predictions = model.forward(input_data)
         conf_mat += confusion_matrix(predictions, targets)
     metrics = confusion_matrix_to_metrics(conf_mat)
@@ -205,15 +208,13 @@ def train(hidden_dims, lr, use_batch_norm, batch_size, epochs, seed, data_dir):
         epoch_loss = [] # epoch loss
         for input_data, labels in tqdm(cifar10_loader['train']):  # looping for each batch
 
-            # cuda
-            input_data = input_data.to(device)
-            labels = labels.to(device)
-
             # reshaping inputs
             batch_size = input_data.shape[0] # batch size
                                             #128,       #32*32*3
             input_data = input_data.reshape((batch_size, n_features)) # X R^batch_Size X N
-
+            # todevice
+            input_data = input_data.to(device)
+            labels = labels.to(device)
             opt.zero_grad()
             # forward
             out = model.forward(input_data)
