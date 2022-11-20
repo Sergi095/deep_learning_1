@@ -167,7 +167,7 @@ def plot_results(results_filename):
         plt.plot(np.array(results['q_2_5']['validation accuracy'][i]).T)
         plt.xlabel('epochs')
         plt.ylabel('accuracy')
-        plt.savefig(f'Validation Accuracy curve with hidden_dims = {n_hidden}')
+        plt.savefig(f'Validation Accuracy curve with hidden_dims ={i}_{n_hidden}')
 
     plt.show()
 
