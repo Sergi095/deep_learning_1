@@ -84,14 +84,14 @@ class MLP(nn.Module):
                                       self.n_classes)
                     self.layers.append(layer)
                     self.layers.append(nn.Softmax(dim=1))
-                    self.layers.append(nn.BatchNorm1d(n_hidden[-1]))
+                    self.layers.append(nn.BatchNorm1d(n_classes))
                 # Other layers
                 else:
                     layer = nn.Linear(self.n_hidden[i-1],
                                       self.n_hidden[i])
                     self.layers.append(layer)
                     self.layers.append(nn.ELU())
-                    self.layers.append(nn.BatchNorm1d(n_hidden[i-1]))
+                    self.layers.append(nn.BatchNorm1d(n_hidden[i]))
         else:
             for i in range(hidden_dim+1):
                 #first layer
