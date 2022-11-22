@@ -33,11 +33,20 @@ def add_augmentation(augmentation_name, transform_list):
     # PUT YOUR CODE HERE  #
     #######################
 
-    # Create a new transformation based on the augmentation_name.
-    pass
+    if augmentation_name == 'random_horizontal_flip':
+        transform_list.append(transforms.RandomHorizontalFlip())
+    elif augmentation_name == 'random_crop':
+        transform_list.append(transforms.RandomCrop(32, padding=4))
+    elif augmentation_name == 'color_jitter':
+        transform_list.append(transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4))
 
-    # Add the new transformation to the list.
-    pass
+
+
+    # # Create a new transformation based on the augmentation_name.
+    # pass
+    #
+    # # Add the new transformation to the list.
+    # pass
 
     #######################
     # END OF YOUR CODE    #
