@@ -50,12 +50,16 @@ def get_model(num_classes=100):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
+    model = models.resnet18(pretrained=True)
+    for param in model.parameters():
+        param.requires_grad = False
+    model.fc = nn.Linear(512, num_classes)
 
-    # Get the pretrained ResNet18 model on ImageNet from torchvision.models
-    pass
-
-    # Randomly initialize and modify the model's last layer for CIFAR100.
-    pass
+    # # Get the pretrained ResNet18 model on ImageNet from torchvision.models
+    # pass
+    #
+    # # Randomly initialize and modify the model's last layer for CIFAR100.
+    # pass
 
     #######################
     # END OF YOUR CODE    #
@@ -83,18 +87,53 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-
     # Load the datasets
-    pass
+    train_set, val_set = get_train_validation_set(data_dir, augmentation_name)
+    trainloader = data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    valloader = data.DataLoader(val_set, batch_size=batch_size)
 
-    # Initialize the optimizer (Adam) to train the last layer of the model.
-    pass
+    # Initialize the optimizer (Adam) to train the last layer of the model
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # Training loop with validation after each epoch. Save the best model.
-    pass
+    # Training loop with validation after each epoch
+    best_accuracy = 0
+    for epoch in range(epochs):  # loop over the dataset multiple times
 
-    # Load the best model on val accuracy and return it.
-    pass
+        running_loss = 0.0
+        for i, data in enumerate(trainloader):
+            # get the inputs; data is a list of [inputs, labels]
+            inputs, labels = data[0].to(device), data[1].to(device)
+
+            # zero the parameter gradients
+            optimizer.zero_grad()
+
+            # forward + backward + optimize
+            outputs = model(inputs)
+            loss = F.cross_entropy(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            # print statistics
+            running_loss += loss.item()
+
+        print('Epoch: %d - Loss: %f' % (epoch + 1, running_loss / len(trainloader)))
+
+        accuracy = evaluate_model(model, valloader, device)
+
+        if accuracy > best_accuracy:  # Save the best model on validation accuracy and return it at the end of training process
+            torch.save({'state': model.state_dict(), 'optim': optimizer}, checkpoint_name)
+
+    # # Load the datasets
+    # pass
+    #
+    # # Initialize the optimizer (Adam) to train the last layer of the model.
+    # pass
+    #
+    # # Training loop with validation after each epoch. Save the best model.
+    # pass
+    #
+    # # Load the best model on val accuracy and return it.
+    # pass
 
     #######################
     # END OF YOUR CODE    #
@@ -118,12 +157,32 @@ def evaluate_model(model, data_loader, device):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    # Set model to evaluation mode (Remember to set it back to training mode in the training loop)
-    pass
+    model.eval()
 
-    # Loop over the dataset and compute the accuracy. Return the accuracy
-    # Remember to use torch.no_grad().
-    pass
+    correct = 0
+
+    with torch.no_grad():
+
+        for i, (x, y) in enumerate(data_loader):
+
+            x = x.to(device)
+            y = y.to(device)
+
+            out = model(x)
+
+            _, preds = torch.max(out, 1)
+
+            correct += torch.sum(preds == y).item()
+
+        accuracy = correct / len(data_loader.dataset)
+
+
+    # Set model to evaluation mode (Remember to set it back to training mode in the training loop)
+    # pass
+    #
+    # # Loop over the dataset and compute the accuracy. Return the accuracy
+    # # Remember to use torch.no_grad().
+    # pass
 
     #######################
     # END OF YOUR CODE    #
@@ -148,22 +207,50 @@ def main(lr, batch_size, epochs, data_dir, seed, augmentation_name):
     # PUT YOUR CODE HERE  #
     #######################
     # Set the seed for reproducibility
-    pass
-
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
     # Set the device to use for training
-    pass
-
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # Load the model
-    pass
-
+    model = models.resnet18(pretrained=True)
+    num_ftrs = model.fc.in_features
+    model.fc = nn.Linear(num_ftrs, 100)
+    model = model.to(device)
     # Get the augmentation to use
-    pass
-
+    if augmentation_name == 'cutout':
+        from cutout import Cutout
+        augmentation = Cutout(n_holes=1, length=16)
+    elif augmentation_name == 'mixup':
+        from mixup import Mixup
+        augmentation = Mixup()
+    else:
+        augmentation = None
     # Train the model
-    pass
-
+    model = train_model(model, lr, batch_size, epochs, data_dir, 'model.pt', device, augmentation)
     # Evaluate the model on the test set
-    pass
+    test_set = get_test_set(data_dir)
+    testloader = data.DataLoader(test_set, batch_size=batch_size)
+    accuracy = evaluate_model(model, testloader, device)
+    print('Accuracy on the test set: %f' % accuracy)
+
+    # Set the seed for reproducibility
+    # pass
+    #
+    # # Set the device to use for training
+    # pass
+    #
+    # # Load the model
+    # pass
+    #
+    # # Get the augmentation to use
+    # pass
+    #
+    # # Train the model
+    # pass
+    #
+    # # Evaluate the model on the test set
+    # pass
 
     #######################
     # END OF YOUR CODE    #
