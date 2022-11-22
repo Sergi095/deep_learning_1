@@ -25,6 +25,8 @@ import torchvision.models as models
 from cifar100_utils import get_train_validation_set, get_test_set
 
 
+
+
 def set_seed(seed):
     """
     Function for setting the seed for reproducibility.
@@ -88,9 +90,9 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
     # PUT YOUR CODE HERE  #
     #######################
     # Load the datasets
-    train_set, val_set = get_train_validation_set(data_dir, augmentation_name)
-    trainloader = data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    valloader = data.DataLoader(val_set, batch_size=batch_size)
+    train_set, val_set = get_train_validation_set(data_dir=data_dir, augmentation_name=augmentation_name)
+    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    valloader = torch.utils.data.DataLoader(val_set, batch_size=batch_size)
 
     # Initialize the optimizer (Adam) to train the last layer of the model
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -121,7 +123,7 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
         accuracy = evaluate_model(model, valloader, device)
 
         if accuracy > best_accuracy:  # Save the best model on validation accuracy and return it at the end of training process
-            torch.save({'state': model.state_dict(), 'optim': optimizer}, checkpoint_name)
+            torch.save(model.state_dict(), checkpoint_name)
 
     # # Load the datasets
     # pass
@@ -157,32 +159,20 @@ def evaluate_model(model, data_loader, device):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    model.eval()
-
-    correct = 0
-
-    with torch.no_grad():
-
-        for i, (x, y) in enumerate(data_loader):
-
-            x = x.to(device)
-            y = y.to(device)
-
-            out = model(x)
-
-            _, preds = torch.max(out, 1)
-
-            correct += torch.sum(preds == y).item()
-
-        accuracy = correct / len(data_loader.dataset)
-
-
     # Set model to evaluation mode (Remember to set it back to training mode in the training loop)
-    # pass
-    #
-    # # Loop over the dataset and compute the accuracy. Return the accuracy
-    # # Remember to use torch.no_grad().
-    # pass
+    model.eval()
+    # Loop over the dataset and compute the accuracy. Return the accuracy
+    correct = 0
+    total = 0
+    with torch.no_grad():
+        for data in data_loader:
+            images, labels = data[0].to(device), data[1].to(device)
+            outputs = model(images)
+            _, predicted = torch.max(outputs.data, 1)
+            total += labels.size(0)
+            correct += (predicted == labels).sum().item()
+
+    accuracy = correct / total
 
     #######################
     # END OF YOUR CODE    #
@@ -207,54 +197,22 @@ def main(lr, batch_size, epochs, data_dir, seed, augmentation_name):
     # PUT YOUR CODE HERE  #
     #######################
     # Set the seed for reproducibility
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
+    set_seed(seed)
     # Set the device to use for training
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     # Load the model
-    model = models.resnet18(pretrained=True)
-    num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 100)
-    model = model.to(device)
+    model = get_model().to(device)
     # Get the augmentation to use
-    if augmentation_name == 'cutout':
-        from cutout import Cutout
-        augmentation = Cutout(n_holes=1, length=16)
-    elif augmentation_name == 'mixup':
-        from mixup import Mixup
-        augmentation = Mixup()
-    else:
-        augmentation = None
+    augmentation = augmentation_name
+
     # Train the model
-    model = train_model(model, lr, batch_size, epochs, data_dir, 'model.pt', device, augmentation)
+    model = train_model(model, lr, batch_size, epochs, data_dir, 'best_model.pt', device, augmentation)
+
     # Evaluate the model on the test set
     test_set = get_test_set(data_dir)
-    testloader = data.DataLoader(test_set, batch_size=batch_size)
-    accuracy = evaluate_model(model, testloader, device)
+    evaluate_model(model, test_set, device)
+    accuracy = evaluate_model(model, test_set, device)
     print('Accuracy on the test set: %f' % accuracy)
-
-    # Set the seed for reproducibility
-    # pass
-    #
-    # # Set the device to use for training
-    # pass
-    #
-    # # Load the model
-    # pass
-    #
-    # # Get the augmentation to use
-    # pass
-    #
-    # # Train the model
-    # pass
-    #
-    # # Evaluate the model on the test set
-    # pass
-
-    #######################
-    # END OF YOUR CODE    #
-    #######################
 
 
 if __name__ == '__main__':
@@ -278,3 +236,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     kwargs = vars(args)
     main(**kwargs)
+
+
+

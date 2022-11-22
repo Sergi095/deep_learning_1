@@ -42,17 +42,6 @@ def add_augmentation(augmentation_name, transform_list):
 
 
 
-    # # Create a new transformation based on the augmentation_name.
-    # pass
-    #
-    # # Add the new transformation to the list.
-    # pass
-
-    #######################
-    # END OF YOUR CODE    #
-    #######################
-
-
 def get_train_validation_set(data_dir, validation_size=5000, augmentation_name=None):
     """
     Returns the training and validation set of CIFAR100.
@@ -98,6 +87,7 @@ def get_train_validation_set(data_dir, validation_size=5000, augmentation_name=N
                                   generator=torch.Generator().manual_seed(42))
 
     return train_dataset, val_dataset
+
 
 
 def get_test_set(data_dir):
