@@ -52,17 +52,12 @@ def get_model(num_classes=100):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
+    # Load the pretrained ResNet18 model
     model = models.resnet18(pretrained=True)
+    # Replace the last layer with a linear layer with num_classes outputs
     for param in model.parameters():
         param.requires_grad = False
     model.fc = nn.Linear(512, num_classes)
-
-    # # Get the pretrained ResNet18 model on ImageNet from torchvision.models
-    # pass
-    #
-    # # Randomly initialize and modify the model's last layer for CIFAR100.
-    # pass
-
     #######################
     # END OF YOUR CODE    #
     #######################
@@ -91,8 +86,8 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
     #######################
     # Load the datasets
     train_set, val_set = get_train_validation_set(data_dir=data_dir, augmentation_name=augmentation_name)
-    trainloader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-    valloader = torch.utils.data.DataLoader(val_set, batch_size=batch_size)
+    train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
+    val_loader = torch.utils.data.DataLoader(val_set, batch_size=batch_size)
 
     # Initialize the optimizer (Adam) to train the last layer of the model
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -102,7 +97,7 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
     for epoch in range(epochs):  # loop over the dataset multiple times
 
         running_loss = 0.0
-        for i, data in enumerate(trainloader):
+        for i, data in enumerate(train_loader):
             # get the inputs; data is a list of [inputs, labels]
             inputs, labels = data[0].to(device), data[1].to(device)
 
@@ -118,29 +113,12 @@ def train_model(model, lr, batch_size, epochs, data_dir, checkpoint_name, device
             # print statistics
             running_loss += loss.item()
 
-        print('Epoch: %d - Loss: %f' % (epoch + 1, running_loss / len(trainloader)))
+        print('Epoch: %d - Loss: %f' % (epoch + 1, running_loss / len(train_loader)))
 
-        accuracy = evaluate_model(model, valloader, device)
+        accuracy = evaluate_model(model, val_loader, device)
 
         if accuracy > best_accuracy:  # Save the best model on validation accuracy and return it at the end of training process
             torch.save(model.state_dict(), checkpoint_name)
-
-    # # Load the datasets
-    # pass
-    #
-    # # Initialize the optimizer (Adam) to train the last layer of the model.
-    # pass
-    #
-    # # Training loop with validation after each epoch. Save the best model.
-    # pass
-    #
-    # # Load the best model on val accuracy and return it.
-    # pass
-
-    #######################
-    # END OF YOUR CODE    #
-    #######################
-
     return model
 
 
@@ -165,19 +143,27 @@ def evaluate_model(model, data_loader, device):
     correct = 0
     total = 0
     with torch.no_grad():
-        for data in data_loader:
-            images, labels = data[0].to(device), data[1].to(device)
-            outputs = model(images)
-            _, predicted = torch.max(outputs.data, 1)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
-
+        try:
+            for data in data_loader:
+                images, labels = data[0].to(device), data[1].to(device)
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
+        except AttributeError:
+            for data in data_loader:
+                images, labels = data[0].unsqueeze(0).to(device), torch.tensor(data[1]).unsqueeze(0).to(device)
+                images, labels = images.to(device), labels.to(device)
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)
+                total += labels.size(0)
+                correct += (predicted == labels).sum().item()
     accuracy = correct / total
-
+    # Set model back to training mode
+    model.train()
     #######################
     # END OF YOUR CODE    #
     #######################
-
     return accuracy
 
 
@@ -204,38 +190,63 @@ def main(lr, batch_size, epochs, data_dir, seed, augmentation_name):
     model = get_model().to(device)
     # Get the augmentation to use
     augmentation = augmentation_name
-
     # Train the model
     model = train_model(model, lr, batch_size, epochs, data_dir, 'best_model.pt', device, augmentation)
-
     # Evaluate the model on the test set
     test_set = get_test_set(data_dir)
     evaluate_model(model, test_set, device)
     accuracy = evaluate_model(model, test_set, device)
+    print(augmentation)
     print('Accuracy on the test set: %f' % accuracy)
-
+    print('Finished Training')
+    print('\n \n \n')
+    return accuracy
+    #######################
+    # END OF YOUR CODE    #
+    #######################
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
+    # parser = argparse.ArgumentParser()
+    #
+    # # Feel free to add more arguments or change the setup
+    #
+    # parser.add_argument('--lr', default=0.001, type=float,
+    #                     help='Learning rate to use')
+    # parser.add_argument('--batch_size', default=128, type=int,
+    #                     help='Minibatch size')
+    # parser.add_argument('--epochs', default=30, type=int,
+    #                     help='Max number of epochs')
+    # parser.add_argument('--seed', default=123, type=int,
+    #                     help='Seed to use for reproducing results')
+    # parser.add_argument('--data_dir', default='data/', type=str,
+    #                     help='Data directory where to store/find the CIFAR100 dataset.')
+    # parser.add_argument('--augmentation_name', default=None, type=str,
+    #                     help='Augmentation to use.')
 
-    # Feel free to add more arguments or change the setup
+    # args = parser.parse_args()
+    # kwargs = vars(args)
 
-    parser.add_argument('--lr', default=0.001, type=float,
-                        help='Learning rate to use')
-    parser.add_argument('--batch_size', default=128, type=int,
-                        help='Minibatch size')
-    parser.add_argument('--epochs', default=30, type=int,
-                        help='Max number of epochs')
-    parser.add_argument('--seed', default=123, type=int,
-                        help='Seed to use for reproducing results')
-    parser.add_argument('--data_dir', default='data/', type=str,
-                        help='Data directory where to store/find the CIFAR100 dataset.')
-    parser.add_argument('--augmentation_name', default=None, type=str,
-                        help='Augmentation to use.')
+    lr, batch_size, epochs, data_dir, seed = 0.001, 128, 30, 'data/', 123
+    transform_name = ['random_horizontal_flip', 'random_crop', 'color_jitter', None]
+    accuracy_dict = {}
+    for augmentation_name in transform_name:
+        accuracy = main(lr, batch_size, epochs, data_dir, seed, augmentation_name)
+        accuracy_dict[augmentation_name] = accuracy
+    import pickle
+    import matplotlib.pyplot as plt
 
-    args = parser.parse_args()
-    kwargs = vars(args)
-    main(**kwargs)
+    with open('accuracy_dict.pkl', 'wb') as f:
+        pickle.dump(accuracy_dict, f)
+    f.close()
+
+    # plot the accuracy of different augmentation
+    fig = plt.figure()
+    ax = fig.add_axes([0,0,1,1])
+    ax.bar(accuracy_dict.keys(), accuracy_dict.values())
+    plt.savefig('accuracy_augmentation.png')
+    plt.show()
+
+
 
 
 
