@@ -196,9 +196,8 @@ def main(lr, batch_size, epochs, data_dir, seed, augmentation_name):
     test_set = get_test_set(data_dir)
     evaluate_model(model, test_set, device)
     accuracy = evaluate_model(model, test_set, device)
-    print(augmentation)
     print('Accuracy on the test set: %f' % accuracy)
-    print('Finished Training')
+    print(f'Finished Training for {augmentation}')
     print('\n \n \n')
     return accuracy
     #######################
@@ -231,7 +230,7 @@ if __name__ == '__main__':
     accuracy_dict = {}
     for augmentation_name in transform_name:
         accuracy = main(lr, batch_size, epochs, data_dir, seed, augmentation_name)
-        accuracy_dict[augmentation_name] = accuracy
+        accuracy_dict[str(augmentation_name)] = accuracy
     import pickle
     import matplotlib.pyplot as plt
 
