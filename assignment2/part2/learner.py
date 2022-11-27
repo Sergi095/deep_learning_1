@@ -66,8 +66,10 @@ class Learner:
         # TODO: Turn off gradients in both the image and the text encoder
         # Note: You need to keep the visual prompt's parameters trainable
         # Hint: Check for "prompt_learner" in the parameters' names
-
-        raise NotImplementedError
+        for name, param in self.vpt.named_parameters():
+            if "prompt_learner" not in name:
+                param.requires_grad = False
+        # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
@@ -213,14 +215,20 @@ class Learner:
             # TODO: Implement the training step for a single batch
 
             # Steps ( your usual training loop :) ):
-            # - Set the gradients to zero
-            # - Move the images/targets to the device
-            # - Perform a forward pass (using self.vpt)
-            # - Compute the loss (using self.criterion)
-            # - Perform a backward pass
-            # - Update the parameters
 
-            raise NotImplementedError
+            # - Set the gradients to zero
+            self.optimizer.zero_grad()
+            # - Move the images/targets to the device
+            images, target = images.to(self.device), target.to(self.device)
+            # - Perform a forward pass (using self.vpt)
+            output = self.vpt(images)
+            # - Compute the loss (using self.criterion)
+            loss = self.criterion(output, target)
+            # - Perform a backward pass
+            loss.backward()
+            # - Update the parameters
+            self.optimizer.step()
+            # raise NotImplementedError
             #######################
             # END OF YOUR CODE    #
             #######################
@@ -282,10 +290,12 @@ class Learner:
 
                 # Steps ( your usual evaluation loop :) ):
                 # - Move the images/targets to the device
+                images, target = images.to(self.device), target.to(self.device)
                 # - Forward pass (using self.vpt)
+                output = self.vpt(images)
                 # - Compute the loss (using self.criterion)
-
-                raise NotImplementedError
+                loss = self.criterion(output, target)
+                # raise NotImplementedError
                 #######################
                 # END OF YOUR CODE    #
                 #######################

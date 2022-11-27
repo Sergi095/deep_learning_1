@@ -176,7 +176,9 @@ def main():
         #######################
         # TODO: Define `classnames` as a list of 10 + 100 class labels from CIFAR10 and CIFAR100
 
-        raise NotImplementedError
+
+
+        # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
@@ -204,7 +206,9 @@ def main():
         # TODO: Compute the text features (for each of the prompts defined above) using CLIP
         # Note: This is similar to the code you wrote in `clipzs.py`
 
-        raise NotImplementedError
+        text_features = clip_model.encode_text(clip.tokenize(prompts).to(args.device))
+
+        # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
@@ -220,7 +224,8 @@ def main():
         # That is, if a class in CIFAR100 corresponded to '4', it should now correspond to '14'
         # Set the result of this to the attribute cifar100_test.targets to override them
 
-        raise NotImplementedError
+        cifar100_test.targets = [x + 10 for x in cifar100_test.targets]
+        # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
@@ -253,7 +258,8 @@ def main():
         # - accurary_all = acc_cifar10 * (% of cifar10 samples) \
         #                  + acc_cifar100 * (% of cifar100 samples)
 
-        raise NotImplementedError
+        accuracy_all = acc_cifar10 * 0.5 + acc_cifar100 * 0.5
+        # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
