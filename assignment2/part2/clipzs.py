@@ -211,6 +211,7 @@ class ZeroshotCLIP(nn.Module):
         # Hint:
         # - Read the CLIP API documentation for more details:
         #   https://github.com/openai/CLIP#api
+        image = image.to(self.device)
         with torch.no_grad():
             image_features = self.clip_model.encode_image(image)
             image_features = image_features / image_features.norm(dim=-1, keepdim=True)
