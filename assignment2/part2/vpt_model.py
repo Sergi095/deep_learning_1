@@ -85,9 +85,8 @@ class CustomCLIP(nn.Module):
         # - Return a tensor of shape (num_prompts, 512).
         text_features = torch.zeros((len(prompts), 512))
         for i, prompt in enumerate(prompts):
-            tokens = prompt.split()[:args.seq_length]
-            text_fv = clip_model(tokens)
-            text_features[i] = clip_model.encoder(text_fv).view(-1)
+            text_features[i] = clip_model.encode_text(clip.tokenize(prompt).to(args.device)).squeeze(0)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         # remove this line once you implement the function
         # raise NotImplementedError("Write the code to compute text features.")
         #######################
