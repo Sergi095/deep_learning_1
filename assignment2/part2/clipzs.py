@@ -171,7 +171,7 @@ class ZeroshotCLIP(nn.Module):
         #   https://github.com/openai/CLIP#api
         with torch.no_grad():
             text_features = clip_model.encode_text(tokens)
-            text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         return text_features
         # remove this line once you implement the function
         # raise NotImplementedError("Implement the precompute_text_features function.")
@@ -212,11 +212,9 @@ class ZeroshotCLIP(nn.Module):
         # - Read the CLIP API documentation for more details:
         #   https://github.com/openai/CLIP#api
         image = image.to(self.device)
-        with torch.no_grad():
-            image_features = self.clip_model.encode_image(image)
-            image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-            logits_per_image = self.logit_scale * image_features @ self.text_features.T
-            logits = logits_per_image.squeeze(0)
+        image_features = self.clip_model.encode_image(image)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        logits = self.clip_model.logit_scale * (image_features @ self.text_features.T).softmax(dim=-1)
         return logits
         # remove this line once you implement the function
         # raise NotImplementedError("Implement the model_inference function.")
