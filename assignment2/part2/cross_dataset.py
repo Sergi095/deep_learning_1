@@ -176,14 +176,14 @@ def main():
         #######################
         # TODO: Define `classnames` as a list of 10 + 100 class labels from CIFAR10 and CIFAR100
 
-
+        classnames = cifar10_test.classes + cifar100_test.classes
 
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
         #######################
 
-        classnames = cifar10_test.classes + cifar100_test.classes
+        # classnames = cifar10_test.classes + cifar100_test.classes
 
         # 5. Load the clip model
         print(f"Loading CLIP (backbone: {args.arch})")
