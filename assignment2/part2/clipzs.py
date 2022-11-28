@@ -379,7 +379,8 @@ def main():
     # - You can use the model_inference method of the ZeroshotCLIP class to get the logits
 
     for images, targets in tqdm(loader): # loop over the dataset
-        # images = images.to(device)
+        images = images.to(device)
+        targets = targets.to(device)    
         logits = clipzs.model_inference(images)
         preds = logits.argmax(dim=1)
         top1.update((preds == targets).float().mean().item(), images.shape[0])
