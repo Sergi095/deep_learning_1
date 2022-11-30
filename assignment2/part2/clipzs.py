@@ -211,8 +211,15 @@ class ZeroshotCLIP(nn.Module):
         # Hint:
         # - Read the CLIP API documentation for more details:
         #   https://github.com/openai/CLIP#api
+        # image = image.to(self.device)
+        # image_features = self.clip_model.encode_image(image)
+        # image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        # logits = self.clip_model.logit_scale * (image_features @ self.text_features.T).softmax(dim=-1)
+        # return logits
         image = image.to(self.device)
-        image_features = self.clip_model.encode_image(image)
+        with torch.no_grad():
+            image_features = self.clip_model.encode_image(image)
+
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         logits = self.clip_model.logit_scale * (image_features @ self.text_features.T).softmax(dim=-1)
         return logits
@@ -380,10 +387,11 @@ def main():
 
     for images, targets in tqdm(loader): # loop over the dataset
         images = images.to(device)
-        targets = targets.to(device)    
+        targets = targets.to(device)
         logits = clipzs.model_inference(images)
-        preds = logits.argmax(dim=1)
-        top1.update((preds == targets).float().mean().item(), images.shape[0])
+        preds = logits.argmax(dim=-1)
+        acc_ = (preds == targets).float().mean().item()
+        top1.update(acc_, images.shape[0])
     # you can remove the following line once you have implemented the inference loop
     # raise NotImplementedError("Implement the inference loop")
 
