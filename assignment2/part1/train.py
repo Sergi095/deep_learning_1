@@ -224,26 +224,26 @@ if __name__ == '__main__':
 
     # args = parser.parse_args()
     # kwargs = vars(args)
-
-    lr, batch_size, epochs, data_dir, seed = 0.001, 128, 30, 'data/', 123
+    #     15 epochs due to time constraints.
+    lr, batch_size, epochs, data_dir, seed = 0.001, 128, 15, 'data/', 123
     transform_name = ['random_horizontal_flip', 'random_crop', 'color_jitter', None]
     accuracy_dict = {}
     for augmentation_name in transform_name:
         accuracy = main(lr, batch_size, epochs, data_dir, seed, augmentation_name)
         accuracy_dict[str(augmentation_name)] = accuracy
     import pickle
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
     with open('accuracy_dict.pkl', 'wb') as f:
         pickle.dump(accuracy_dict, f)
     f.close()
 
     # plot the accuracy of different augmentation
-    fig = plt.figure()
-    ax = fig.add_axes([0,0,1,1])
-    ax.bar(accuracy_dict.keys(), accuracy_dict.values())
-    plt.savefig('accuracy_augmentation.png')
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.add_axes([0,0,1,1])
+    # ax.bar(accuracy_dict.keys(), accuracy_dict.values())
+    # plt.savefig('accuracy_augmentation.png')
+    # plt.show()
 
 
 
