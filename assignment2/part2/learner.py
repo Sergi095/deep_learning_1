@@ -221,7 +221,7 @@ class Learner:
             # - Move the images/targets to the device
 
             # - Perform a forward pass (using self.vpt)
-            output= self.vpt(images.to(self.device))
+            output = self.vpt(images.to(self.device))
             # - Compute the loss (using self.criterion)
             loss = self.criterion(output, target.to(self.device))
             # - Perform a backward pass
