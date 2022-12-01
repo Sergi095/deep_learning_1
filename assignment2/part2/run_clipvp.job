@@ -45,6 +45,7 @@ for dataset in "${datasets[@]}"; do
             --epochs $epochs \
             --method $method \
             --prompt_size $prompt_size \
-            --root $root
+            --root $root \
+            --visualize_prompt
     done
 done
