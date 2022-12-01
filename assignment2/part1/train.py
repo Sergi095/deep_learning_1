@@ -159,6 +159,7 @@ def evaluate_model(model, data_loader, device):
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
     accuracy = correct / total
+    print(f'This is the Accuracy: {accuracy}')
     # Set model back to training mode
     model.train()
     #######################
