@@ -221,10 +221,11 @@ class Learner:
             # - Move the images/targets to the device
             images, target = images.to(self.device), target.to(self.device)
             # - Perform a forward pass (using self.vpt)
-            output = self.vpt(images)
+            output= self.vpt(images.to(self.device))
             # - Compute the loss (using self.criterion)
             loss = self.criterion(output, target)
             # - Perform a backward pass
+            exit(0)
             loss.backward()
             # - Update the parameters
             self.optimizer.step()
@@ -292,7 +293,7 @@ class Learner:
                 # - Move the images/targets to the device
                 images, target = images.to(self.device), target.to(self.device)
                 # - Forward pass (using self.vpt)
-                output = self.vpt(images)
+                output = self.vpt(images.to(self.device))
                 # - Compute the loss (using self.criterion)
                 loss = self.criterion(output, target)
                 # raise NotImplementedError

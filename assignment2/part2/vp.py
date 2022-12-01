@@ -41,10 +41,15 @@ class PadPrompter(nn.Module):
         # - See Fig 2(c) in the assignment to get a sense of how each of these should look like.
         # - Shape of self.pad_up and self.pad_down should be (1, 3, pad_size, image_size)
         # - See Fig 2.(g)/(h) and think about the shape of self.pad_left and self.pad_right
-        self.pad_up = nn.Parameter(torch.zeros(size=(1, 3, pad_size, image_size)))
-        self.pad_left = nn.Parameter(torch.zeros(size=(1, 3, pad_size + image_size, pad_size)))
-        self.pad_down = nn.Parameter(torch.zeros(size=(1, 3, pad_size, image_size)))
-        self.pad_right = nn.Parameter(torch.zeros(size=(1, 3, pad_size + image_size, pad_size)))
+        # self.pad_up = nn.Parameter(torch.zeros(size=(1, 3, pad_size, image_size)))
+        # self.pad_left = nn.Parameter(torch.zeros(size=(1, 3, pad_size + image_size, pad_size)))
+        # self.pad_down = nn.Parameter(torch.zeros(size=(1, 3, pad_size, image_size)))
+        # self.pad_right = nn.Parameter(torch.zeros(size=(1, 3, pad_size + image_size, pad_size)))
+
+        self.pad_up = nn.Parameter(torch.randn(size=(1, 3, pad_size, image_size)))
+        self.pad_down = nn.Parameter(torch.randn(size=(1, 3, pad_size, image_size)))
+        self.pad_right = nn.Parameter(torch.randn(size=(1, 3, pad_size + image_size, pad_size)))
+        self.pad_left = nn.Parameter(torch.randn(size=(1, 3, pad_size + image_size, pad_size)))
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -60,13 +65,10 @@ class PadPrompter(nn.Module):
         # - First define the prompt. Then add it to the batch of images.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
+        prompt = torch.cat((self.pad_up, self.pad_left, self.pad_down, self.pad_right), dim=3)
+        x = torch.cat((x, prompt.repeat(x.shape[0], 1, 1, 1)), dim=2)
 
-        prompt = torch.cat((self.pad_left, self.pad_up), dim=3)
-        prompt = torch.cat((prompt, self.pad_right), dim=2)
-        prompt = torch.cat((prompt, self.pad_down), dim=2)
-
-        x = torch.cat((x, prompt), 3)
-        return x, prompt
+        return x
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -114,11 +116,8 @@ class FixedPatchPrompter(nn.Module):
         # - First define the prompt. Then add it to the batch of images.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
-
-        prompt = torch.zeros_like(x)
-        prompt[:, :, :self.patch.shape[2], :self.patch.shape[3]] = self.patch
-        x = torch.cat((x, prompt), 3)
-        return x, prompt
+        x[:, :, :self.patch.shape[2], :self.patch.shape[3]] += self.patch
+        return x
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -167,11 +166,10 @@ class RandomPatchPrompter(nn.Module):
         #   and not at the top-left corner.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
-
-        prompt = torch.zeros_like(x)
-        prompt[:, :, :self.patch.shape[2], :self.patch.shape[3]] = self.patch
-        x = torch.cat((x, prompt), 3)
-        return x, prompt
+        rand_x = np.random.randint(0, x.shape[2] - self.patch.shape[2])
+        rand_y = np.random.randint(0, x.shape[3] - self.patch.shape[3])
+        x[:, :, rand_x:rand_x+self.patch.shape[2], rand_y:rand_y+self.patch.shape[3]] += self.patch
+        return x
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #

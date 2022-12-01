@@ -83,10 +83,9 @@ class CustomCLIP(nn.Module):
         # Instructions:
         # - Given a list of prompts, compute the text features for each prompt.
         # - Return a tensor of shape (num_prompts, 512).
-        text_features = torch.zeros((len(prompts), 512))
-        for i, prompt in enumerate(prompts):
-            text_features[i] = clip_model.encode_text(clip.tokenize(prompt).to(args.device)).squeeze(0)
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+
+        text_features = clip_model.encode_text(clip.tokenize(prompts).to(args.device))
+        text_features = text_features / text_features.norm(dim=0)
         # remove this line once you implement the function
         # raise NotImplementedError("Write the code to compute text features.")
         #######################
@@ -124,7 +123,7 @@ class CustomCLIP(nn.Module):
         image_features = self.clip_model.encode_image(image)
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         logits = (image_features @ self.text_features.T) * self.logit_scale
-        logits = logits.squeeze(0)
+        # logits = logits.squeeze(0)
 
         return logits
         # remove this line once you implement the function
