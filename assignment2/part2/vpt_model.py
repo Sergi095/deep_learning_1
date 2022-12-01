@@ -122,7 +122,8 @@ class CustomCLIP(nn.Module):
         image = self.prompt_learner(image)
         image_features = self.clip_model.encode_image(image)
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-        logits = (image_features @ self.text_features.T) * self.logit_scale
+        # OpenAI
+        logits = (100 * image_features @ self.text_features.T).softmax(dim=-1) * self.logit_scale
         # logits = logits.squeeze(0)
 
         return logits
