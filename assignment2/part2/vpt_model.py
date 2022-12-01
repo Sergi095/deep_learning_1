@@ -85,7 +85,7 @@ class CustomCLIP(nn.Module):
         # - Return a tensor of shape (num_prompts, 512).
 
         text_features = clip_model.encode_text(clip.tokenize(prompts).to(args.device))
-        text_features = text_features / text_features.norm(dim=0)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         # remove this line once you implement the function
         # raise NotImplementedError("Write the code to compute text features.")
         #######################

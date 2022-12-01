@@ -219,11 +219,11 @@ class Learner:
             # - Set the gradients to zero
             self.optimizer.zero_grad()
             # - Move the images/targets to the device
-            images, target = images.to(self.device), target.to(self.device)
+
             # - Perform a forward pass (using self.vpt)
             output= self.vpt(images.to(self.device))
             # - Compute the loss (using self.criterion)
-            loss = self.criterion(output, target)
+            loss = self.criterion(output, target.to(self.device))
             # - Perform a backward pass
             exit(0)
             loss.backward()
@@ -291,11 +291,11 @@ class Learner:
 
                 # Steps ( your usual evaluation loop :) ):
                 # - Move the images/targets to the device
-                images, target = images.to(self.device), target.to(self.device)
+
                 # - Forward pass (using self.vpt)
                 output = self.vpt(images.to(self.device))
                 # - Compute the loss (using self.criterion)
-                loss = self.criterion(output, target)
+                loss = self.criterion(output, target.to(self.device))
                 # raise NotImplementedError
                 #######################
                 # END OF YOUR CODE    #
