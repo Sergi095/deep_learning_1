@@ -85,7 +85,7 @@ class CustomCLIP(nn.Module):
         # - Return a tensor of shape (num_prompts, 512).
 
         text_features = clip_model.encode_text(clip.tokenize(prompts).to(args.device))
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+        text_features /= text_features.norm(dim=-1, keepdim=True)
         # remove this line once you implement the function
         # raise NotImplementedError("Write the code to compute text features.")
         #######################
@@ -121,7 +121,7 @@ class CustomCLIP(nn.Module):
         # - Return logits of shape (num_classes,).
         image = self.prompt_learner(image)
         image_features = self.clip_model.encode_image(image)
-        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        image_features /= image_features.norm(dim=-1, keepdim=True)
         # OpenAI
         logits = (100 * image_features @ self.text_features.T).softmax(dim=-1) * self.logit_scale
         # logits = logits.squeeze(0)
