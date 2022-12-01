@@ -206,8 +206,11 @@ def main():
         # TODO: Compute the text features (for each of the prompts defined above) using CLIP
         # Note: This is similar to the code you wrote in `clipzs.py`
 
-        text_features = clip_model.encode_text(clip.tokenize(prompts).to(args.device))
-
+        # from clipzs.py
+        tokens = clip.tokenize(prompts).to(args.device)
+        with torch.no_grad():
+            text_features = clip_model.encode_text(tokens)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -258,7 +261,9 @@ def main():
         # - accurary_all = acc_cifar10 * (% of cifar10 samples) \
         #                  + acc_cifar100 * (% of cifar100 samples)
 
-        accuracy_all = acc_cifar10 * 0.5 + acc_cifar100 * 0.5
+        percent_cifar10 = len(cifar10_test) / (len(cifar10_test) + len(cifar100_test))
+        percent_cifar100 = len(cifar100_test) / (len(cifar10_test) + len(cifar100_test))
+        accuracy_all = acc_cifar10 * percent_cifar10 + acc_cifar100 * percent_cifar100
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
