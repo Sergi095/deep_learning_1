@@ -176,10 +176,8 @@ class Learner:
     def train_one_epoch(self, epoch):
         """
         Updates (prompt) parameters for one epoch.
-
         Args:
             epoch (int): current epoch number
-
         Returns:
             tuple: (train_loss averaged across batch, train_acc across batch)
         """
