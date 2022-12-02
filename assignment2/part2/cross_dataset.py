@@ -22,7 +22,7 @@ from learner import Learner
 from clip import clip
 from dataset import load_dataset, construct_dataloader
 from pprint import pprint
-from utils import DummyArgs
+# from utils import DummyArgs
 
 
 def parse_option():
