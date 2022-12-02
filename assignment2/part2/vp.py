@@ -66,8 +66,13 @@ class PadPrompter(nn.Module):
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
 
-        x = torch.cat((self.pad_left, x, self.pad_right), dim=3)
-        x = torch.cat((self.pad_up, x, self.pad_down), dim=2)
+        # x = torch.cat((self.pad_left, x, self.pad_right), dim=3)
+        # x = torch.cat((self.pad_up, x, self.pad_down), dim=2)
+
+        x[:, :, :self.pad_up.shape[2], :] = self.pad_up
+        x[:, :, -self.pad_down.shape[2]:, :] = self.pad_down
+        x[:, :, :, :self.pad_left.shape[3]] = self.pad_left
+        x[:, :, :, -self.pad_right.shape[3]:] = self.pad_right
 
         return x
         # raise NotImplementedError
