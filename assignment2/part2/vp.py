@@ -65,8 +65,9 @@ class PadPrompter(nn.Module):
         # - First define the prompt. Then add it to the batch of images.
         # - It is always advisable to implement and then visualize if
         #   your prompter does what you expect it to do.
-        prompt = torch.cat((self.pad_up, self.pad_left, self.pad_down, self.pad_right), dim=3)
-        x = torch.cat((x, prompt.repeat(x.shape[0], 1, 1, 1)), dim=2)
+
+        x = torch.cat((self.pad_left, x, self.pad_right), dim=3)
+        x = torch.cat((self.pad_up, x, self.pad_down), dim=2)
 
         return x
         # raise NotImplementedError
