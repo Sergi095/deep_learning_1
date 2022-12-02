@@ -218,6 +218,7 @@ class Learner:
 
             # - Set the gradients to zero
             self.optimizer.zero_grad()
+            torch.autograd.set_detect_anomaly(True)
             # - Move the images/targets to the device
             images, target = images.to(self.device), target.to(self.device)
             # - Perform a forward pass (using self.vpt)
