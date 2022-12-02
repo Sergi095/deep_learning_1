@@ -219,11 +219,11 @@ class Learner:
             # - Set the gradients to zero
             self.optimizer.zero_grad()
             # - Move the images/targets to the device
-
+            images, target = images.to(self.device), target.to(self.device)
             # - Perform a forward pass (using self.vpt)
-            output = self.vpt(images.to(self.device))
+            output = self.vpt(images)
             # - Compute the loss (using self.criterion)
-            loss = self.criterion(output, target.to(self.device))
+            loss = self.criterion(output, target)
             # - Perform a backward pass
             loss.backward()
             # - Update the parameters
