@@ -48,8 +48,8 @@ class PadPrompter(nn.Module):
 
         self.pad_up = nn.Parameter(torch.randn(size=(1, 3, pad_size, image_size), requires_grad=True))
         self.pad_down = nn.Parameter(torch.randn(size=(1, 3, pad_size, image_size),requires_grad=True))
-        self.pad_right = nn.Parameter(torch.randn(size=(1, 3, pad_size + image_size, pad_size),requires_grad=True))
-        self.pad_left = nn.Parameter(torch.randn(size=(1, 3, pad_size + image_size, pad_size),requires_grad=True))
+        self.pad_right = nn.Parameter(torch.randn(size=(1, 3, -2 * pad_size + image_size, pad_size),requires_grad=True))
+        self.pad_left = nn.Parameter(torch.randn(size=(1, 3, -2 * pad_size + image_size, pad_size),requires_grad=True))
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
