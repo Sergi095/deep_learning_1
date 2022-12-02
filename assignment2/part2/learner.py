@@ -225,7 +225,6 @@ class Learner:
             # - Compute the loss (using self.criterion)
             loss = self.criterion(output, target.to(self.device))
             # - Perform a backward pass
-            exit(0)
             loss.backward()
             # - Update the parameters
             self.optimizer.step()
