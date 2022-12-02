@@ -69,12 +69,17 @@ class PadPrompter(nn.Module):
         # x = torch.cat((self.pad_left, x, self.pad_right), dim=3)
         # x = torch.cat((self.pad_up, x, self.pad_down), dim=2)
 
-        x[:, :, :self.pad_up.shape[2], :] += self.pad_up
-        x[:, :, -self.pad_down.shape[2]:, :] += self.pad_down
-        x[:, :, self.pad_up.shape[2]:-self.pad_down.shape[2], :self.pad_left.shape[3]] += self.pad_left
-        x[:, :, self.pad_up.shape[2]:-self.pad_down.shape[2], -self.pad_right.shape[3]:] += self.pad_right
-
+        print(x.shape)
+        x_ = torch.zeros_like(x)
+        pad_size = self.pad_up.shape[2]
+        image_size = self.pad_up.shape[3]
+        x_[:, :, 0:pad_size, :] = self.pad_up
+        x_[:, :, -pad_size:mask.shape[-2], :] = self.pad_down
+        x_[:, :, 0:-2 * pad_size + image_size, 0:pad_size] = self.pad_right
+        x_[:, :, 0:-2 * pad_size + image_size, -pad_size:mask.shape[-1]] = self.pad_left
+        x += x_
         return x
+
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
