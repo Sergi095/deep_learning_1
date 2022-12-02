@@ -290,11 +290,11 @@ class Learner:
 
                 # Steps ( your usual evaluation loop :) ):
                 # - Move the images/targets to the device
-
+                images, target = images.to(self.device), target.to(self.device)
                 # - Forward pass (using self.vpt)
-                output = self.vpt(images.to(self.device))
+                output = self.vpt(images)
                 # - Compute the loss (using self.criterion)
-                loss = self.criterion(output, target.to(self.device))
+                loss = self.criterion(output, target)
                 # raise NotImplementedError
                 #######################
                 # END OF YOUR CODE    #
