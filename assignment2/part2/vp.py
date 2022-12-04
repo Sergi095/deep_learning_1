@@ -74,9 +74,9 @@ class PadPrompter(nn.Module):
         pad_size = self.pad_up.shape[2]
         image_size = self.pad_up.shape[3]
         x_[:, :, 0:pad_size, :] = self.pad_up
-        x_[:, :, -pad_size:mask.shape[-2], :] = self.pad_down
+        x_[:, :, -pad_size:x_.shape[-2], :] = self.pad_down
         x_[:, :, 0:-2 * pad_size + image_size, 0:pad_size] = self.pad_right
-        x_[:, :, 0:-2 * pad_size + image_size, -pad_size:mask.shape[-1]] = self.pad_left
+        x_[:, :, 0:-2 * pad_size + image_size, -pad_size:x_.shape[-1]] = self.pad_left
         x += x_
         return x
 
