@@ -58,7 +58,7 @@ def KLD(mean, log_std):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    KLD = torch.sum(0.5 * (log_std.exp() ** 2 + mean ** 2 - 1 - log_std), dim=-1)
+    KLD = (torch.exp(2*log_std) + mean ** 2 - 1 - 2*log_std).sum(dim=-1) / 2
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
@@ -78,7 +78,7 @@ def elbo_to_bpd(elbo, img_shape):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    bpd = elbo / (np.log(2) * np.prod(img_shape[2:]))
+    bpd = elbo / (np.log(2) * np.prod(img_shape[1:]))
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
