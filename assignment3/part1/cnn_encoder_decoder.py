@@ -145,12 +145,11 @@ class CNNDecoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        out = self.linear(z)
+        out = self.linear(z.to(self.device))
         out = out.reshape(z.shape[0], -1, 4, 4)
         # out = out.reshape(-1, self.c_hid, 16, 16)
         # print(out.shape)
         x = self.net(out)
-
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
