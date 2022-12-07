@@ -102,8 +102,8 @@ def train_aae(epoch, model, train_loader,
         #######################
         # Encoder-Decoder update
         optimizer_ae.zero_grad()
-        recon_x, z = model(x)
-        ae_loss, logging_dict_aae = model.get_loss_autoencoder(x, recon_x, z, lambda_)
+        x_recon, z = model(x)
+        ae_loss, logging_dict_disc = model.get_loss_autoencoder(x, x_recon, z)
         ae_loss.backward()
         optimizer_ae.step()
         # raise NotImplementedError

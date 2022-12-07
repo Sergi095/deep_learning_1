@@ -180,7 +180,10 @@ class Discriminator(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         print('z shape: ',z.shape)
-        preds = self.net(z.to(self.device))
+        z = z.to(self.device)
+        z = z.reshape(z.shape[0], -1)
+        print('z shape after reshape: ',z.shape)
+        preds = self.net(z)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
