@@ -130,6 +130,7 @@ class ConvDecoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
+        # z = z.to(self.device)
         out = self.linear(z)
         out = out.reshape(z.shape[0], -1, 4, 4)
         recon_x = self.net(out)
@@ -178,6 +179,7 @@ class Discriminator(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
+        print('z shape: ',z.shape)
         preds = self.net(z.to(self.device))
         # raise NotImplementedError
         #######################
@@ -307,7 +309,7 @@ class AdversarialAE(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        x = self.decoder(torch.randn(batch_size, self.z_dim))
+        x = self.decoder(torch.randn(batch_size, self.z_dim).to(self.device))
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
