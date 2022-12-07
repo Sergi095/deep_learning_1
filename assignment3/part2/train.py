@@ -31,6 +31,7 @@ from models import AdversarialAE
 from utils import *
 
 
+
 def generate_and_save(model, epoch, summary_writer, batch_size=64):
     """
     Function that generates and save samples from the AAE latent code.
@@ -103,7 +104,7 @@ def train_aae(epoch, model, train_loader,
         # Encoder-Decoder update
         optimizer_ae.zero_grad()
         x_recon, z = model(x)
-        ae_loss, logging_dict_disc = model.get_loss_autoencoder(x, x_recon, z)
+        ae_loss, logging_dict_ae = model.get_loss_autoencoder(x, x_recon, z)
         ae_loss.backward()
         optimizer_ae.step()
         # raise NotImplementedError
@@ -128,6 +129,7 @@ def train_aae(epoch, model, train_loader,
         if (epoch <= 1 or epoch % 5 == 0) and batch_idx == 0:
             save_reconstruction(model, epoch, logger_ae.summary_writer, x)
     print('====> Epoch {} : Average loss: {:.4f}'.format(epoch, train_loss / len(train_loader)))
+    return logging_dict_ae, logging_dict_disc
 
 
 def main(args):
@@ -194,14 +196,17 @@ def main(args):
     # Initial generation before training
     generate_and_save(model, 0, summary_writer, args.batch_size)
 
+    logger_data_ae = {}
+    logger_data_disc = {}
+
     # Training loop
     print(f"Using device {device}")
     for epoch in range(args.epochs):
         # Training epoch
-        train_aae(epoch, model, train_loader,
-                  logger_ae, logger_disc,
-                  optimizer_ae, optimizer_disc,
-                  lambda_=args.lambda_)
+        logging_dict_ae, logging_dict_disc = train_aae(epoch, model, train_loader,
+        logger_ae, logger_disc,
+        optimizer_ae, optimizer_disc,
+        lambda_=args.lambda_)
 
         # Logging images
         if epoch == 0 or (epoch + 1) % 5 == 0:
@@ -213,6 +218,14 @@ def main(args):
         if (epoch + 1) % 10 == 0:
             torch.save(model.state_dict(),
                        os.path.join(checkpoint_dir, "model_checkpoint.pt"))
+
+        logger_data_ae[f'{epoch+1}'] = logging_dict_ae
+        logger_data_disc[f'{epoch+1}'] = logging_dict_disc
+
+    with open(os.path.join(experiment_dir, 'result_dict_ae.json'), 'w') as f:
+        json.dump(logger_data_ae, f, indent=4)
+    with open(os.path.join(experiment_dir, 'result_dict_disc.json'), 'w') as f:
+        json.dump(logger_data_disc, f, indent=4)
 
 
 if __name__ == '__main__':
