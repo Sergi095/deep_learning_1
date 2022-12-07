@@ -29,7 +29,7 @@ from torchvision.utils import make_grid, save_image
 from mnist import mnist
 from models import AdversarialAE
 from utils import *
-
+import pickle
 
 
 def generate_and_save(model, epoch, summary_writer, batch_size=64):
@@ -222,10 +222,10 @@ def main(args):
         logger_data_ae[f'{epoch+1}'] = logging_dict_ae
         logger_data_disc[f'{epoch+1}'] = logging_dict_disc
 
-    with open(os.path.join(experiment_dir, 'result_dict_ae.json'), 'w') as f:
-        json.dump(logger_data_ae, f, indent=4)
-    with open(os.path.join(experiment_dir, 'result_dict_disc.json'), 'w') as f:
-        json.dump(logger_data_disc, f, indent=4)
+    with open(os.path.join(experiment_dir, 'result_dict_ae.p'), 'wb') as f:
+        pickle.dump(logger_data_ae, f)
+    with open(os.path.join(experiment_dir, 'result_dict_disc.p'), 'wb') as f:
+        pickle.dump(logger_data_disc, f)
 
 
 if __name__ == '__main__':
