@@ -156,6 +156,7 @@ class Discriminator(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         act_fn = nn.LeakyReLU(negative_slope=0.2)
+        self.z_dim = z_dim
         self.net = nn.Sequential(
             nn.Linear(z_dim, 512),
             act_fn,
@@ -181,7 +182,7 @@ class Discriminator(nn.Module):
         #######################
         # print('z shape: ',z.shape)
         z = z.to(self.device)
-        z = z.reshape(z.shape[0], -1, 8)
+        z = z.reshape(z.shape[0], -1, self.z_dim)
         # print('z shape after reshape: ',z.shape)
         preds = self.net(z)
         # raise NotImplementedError

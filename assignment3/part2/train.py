@@ -178,8 +178,8 @@ def main(args):
     # You can use the Adam optimizer for autoencoder and SGD for discriminator.
     # It is recommended to reduce the momentum (beta1) to e.g. 0.5 for Adam optimizer.
 
-    optimizer_ae = torch.optim.Adam(model.parameters(), lr=0.1, betas=(0.5, 0.999))
-    optimizer_disc = torch.optim.SGD(model.discriminator.parameters(), lr=0.1)
+    optimizer_ae = torch.optim.Adam(model.parameters(), lr=args.ae_lr, betas=(0.5, 0.999))
+    optimizer_disc = torch.optim.SGD(model.discriminator.parameters(), lr=args.d_lr)
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
