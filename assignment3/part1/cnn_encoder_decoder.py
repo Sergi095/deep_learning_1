@@ -125,7 +125,7 @@ class CNNDecoder(nn.Module):
             act_fn,
             nn.ConvTranspose2d(num_filters, num_input_channels, kernel_size=3, output_padding=1, padding=1,
                                stride=2),
-            nn.Tanh()  # [-1, 1] => [0, 1]
+
         )
 
         #######################
