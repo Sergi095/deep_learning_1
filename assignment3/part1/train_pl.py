@@ -79,7 +79,7 @@ class VAE(pl.LightningModule):
         L_reg = torch.mean(KLD(mean_, log_std_))
         elbo = L_rec+L_reg
         bpd = elbo_to_bpd(elbo, img_shape)
-        print(bpd)
+        # print(bpd)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
