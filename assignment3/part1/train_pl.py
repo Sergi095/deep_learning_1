@@ -100,11 +100,6 @@ class VAE(pl.LightningModule):
         #######################
         x = self.decoder(torch.randn(batch_size, self.hparams.z_dim)).softmax(dim=1)
         x_samples = torch.argmax(x, dim=1).unsqueeze(dim=1) # [B, 1, H, W]
-        # x_samples = torch.multinomial(x, num_samples=1).float() # [B, 1, H, W]
-        # B, C, H, W = x.shape
-        # x_samples = torch.multinomial(
-        #     x.permute(0, 2, 3, 1).reshape(-1, C), num_samples=1)
-        # x_samples = x_samples.reshape(B, 1, H, W)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
