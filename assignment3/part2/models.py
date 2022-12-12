@@ -35,22 +35,24 @@ class ConvEncoder(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         act_fn = nn.ReLU()
+        c_hid = 32
+        num_input_channels_ = 1
         self.net = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3,
+            nn.Conv2d(num_input_channels_, c_hid, kernel_size=3,
                       padding=1, stride=2),  # 32x32 => 16x16
             act_fn,
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
+            nn.Conv2d(c_hid, c_hid, kernel_size=3, padding=1),
             act_fn,
-            nn.Conv2d(32, 64, kernel_size=3,
+            nn.Conv2d(c_hid, 2*c_hid, kernel_size=3,
                       padding=1, stride=2),  # 16x16 => 8x8
             act_fn,
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
+            nn.Conv2d(2*c_hid, 2*c_hid, kernel_size=3, padding=1),
             act_fn,
-            nn.Conv2d(64, 64, kernel_size=3,
+            nn.Conv2d(2*c_hid, 2*c_hid, kernel_size=3,
                       padding=1, stride=2),  # 8x8 => 4x4
             act_fn,
             nn.Flatten(), 
-            nn.Linear(2*4*4*32, z_dim)
+            nn.Linear(2*4*4*c_hid, z_dim)
         )
         # raise NotImplementedError
         #######################
@@ -99,25 +101,27 @@ class ConvDecoder(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         act_fn_ = nn.ReLU()
+        _c_hid = 32
+        _num_input_channels = 1
         self.linear = nn.Sequential(
-            nn.Linear(z_dim, 2*4*4*32),
+            nn.Linear(z_dim, 2*4*4*_c_hid),
             act_fn_
         )
 
         self.net = nn.Sequential(
-            nn.ConvTranspose2d(64, 64,
+            nn.ConvTranspose2d(2*_c_hid, 2*_c_hid,
                                kernel_size=3, padding=1, stride=2),  # 4x4 => 7x7
             act_fn_,
-            nn.Conv2d(64, 64,
+            nn.Conv2d(2*_c_hid, 2*_c_hid,
                       kernel_size=3, padding=1),  # 7x7 => 7x7
             act_fn_,
-            nn.ConvTranspose2d(64, 32, kernel_size=3,
+            nn.ConvTranspose2d(2*_c_hid, _c_hid, kernel_size=3,
                                output_padding=1, padding=1, stride=2),  # 7x7 => 14x14
             act_fn_,
-            nn.Conv2d(32, 32, kernel_size=3,
+            nn.Conv2d(_c_hid, _c_hid, kernel_size=3,
                       padding=1),  # 14x14 => 14x14
             act_fn_,
-            nn.ConvTranspose2d(32, 1, kernel_size=3,
+            nn.ConvTranspose2d(_c_hid, _num_input_channels, kernel_size=3,
                                output_padding=1, padding=1, stride=2),  # 14x14 => 28x28
             nn.Tanh() 
         )
@@ -161,12 +165,13 @@ class Discriminator(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         _act_fn = nn.LeakyReLU(negative_slope=0.2)
+        hidden_units = 512
         self.net = nn.Sequential(
-            nn.Linear(z_dim, 512),
+            nn.Linear(z_dim, hidden_units),
             _act_fn,
-            nn.Linear(512, 512),
+            nn.Linear(hidden_units, hidden_units),
             _act_fn,
-            nn.Linear(512, 1)
+            nn.Linear(hidden_units, 1)
         )
         # raise NotImplementedError
         #######################
