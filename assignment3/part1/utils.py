@@ -110,12 +110,20 @@ def visualize_manifold(decoder, grid_size=20):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    percentiles = torch.linspace(0.5/grid_size, (grid_size-0.5)/grid_size, grid_size)
-    z = torch.multinomial(percentiles, grid_size**2, replacement=True)
-    z = torch.meshgrid(z, z)
-    z = torch.stack(z, dim=-1)
-    img_grid = torch.softmax(decoder(z), dim=1)
-    img_grid = make_grid(img_grid, nrow=grid_size)
+    percentiles = torch.linspace(0.5 / grid_size, (grid_size - 0.5) / grid_size, grid_size)
+    # use icdf to get z values at percentiles as in the hint
+    z1 = torch.distributions.Normal(0, 1).icdf(percentiles)
+    z2 = torch.distributions.Normal(0, 1).icdf(percentiles)
+    # create a grid of z values
+    z1, z2 = torch.meshgrid(z1, z2)
+    z = torch.stack([z1, z2], dim=2) # [grid_size, grid_size, 2]
+    z = z.reshape(-1, 2) # torch.Size([grid_size**2, 2])
+    # decode the z values
+    img = decoder(z).softmax(dim=1) # torch.Size([grid_size**2, 16, 28, 28]) [B, C, H, W]
+    samples = torch.multinomial(img.permute(0, 2, 3, 1).reshape(-1, img.shape[1]), 1).reshape(grid_size, grid_size, img.shape[2], img.shape[3])
+    samples = samples.reshape(grid_size**2, 1, img.shape[2], img.shape[3]) / 255
+    # combine to grid
+    img_grid = make_grid(samples, nrow=grid_size)
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
