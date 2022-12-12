@@ -34,23 +34,24 @@ class ConvEncoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-
         act_fn = nn.ReLU()
         self.net = nn.Sequential(
-            nn.Conv2d(1, 32, kernel_size=3, padding=1, stride=2), # 28x28 => 14x14
+            nn.Conv2d(1, 32, kernel_size=3,
+                      padding=1, stride=2),  # 32x32 => 16x16
             act_fn,
             nn.Conv2d(32, 32, kernel_size=3, padding=1),
             act_fn,
-            nn.Conv2d(32, 64, kernel_size=3, padding=1, stride=2), # 14x14 => 7x7
+            nn.Conv2d(32, 64, kernel_size=3,
+                      padding=1, stride=2),  # 16x16 => 8x8
             act_fn,
             nn.Conv2d(64, 64, kernel_size=3, padding=1),
             act_fn,
-            nn.Conv2d(64, 64, kernel_size=3, padding=1, stride=2), # 7x7 => 4x4
+            nn.Conv2d(64, 64, kernel_size=3,
+                      padding=1, stride=2),  # 8x8 => 4x4
             act_fn,
-            nn.Flatten(), # Image grid to single feature vector
-            nn.Linear(4 * 4 * 64, z_dim)
+            nn.Flatten(), 
+            nn.Linear(2*4*4*32, z_dim)
         )
-
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -67,8 +68,7 @@ class ConvEncoder(nn.Module):
         # PUT YOUR CODE HERE  #
         #######################
         x = x.to(self.device)
-        x = self.net(x)
-        z = x
+        z = self.net(x)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -99,21 +99,28 @@ class ConvDecoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        self.linear = nn.Sequential(nn.Linear(z_dim, 4 * 4 * 64))
-        act_fn = nn.ReLU()
+        act_fn_ = nn.ReLU()
+        self.linear = nn.Sequential(
+            nn.Linear(z_dim, 2*4*4*32),
+            act_fn_
+        )
+
         self.net = nn.Sequential(
-            nn.ConvTranspose2d(64, 64, kernel_size=3, padding=1, stride=2, output_padding=0), # 4x4 => 7x7
-            act_fn,
-            nn.Conv2d(64, 64, kernel_size=3, padding=1),
-            act_fn,
-            nn.ConvTranspose2d(64, 32, kernel_size=3, padding=1, stride=2, output_padding=1), # 7x7 => 14x14
-            act_fn,
-            nn.Conv2d(32, 32, kernel_size=3, padding=1),
-            act_fn,
-            nn.ConvTranspose2d(32, 32, kernel_size=3, padding=1, stride=2, output_padding=1), # 14x14 => 28x28
-            act_fn,
-            nn.Conv2d(32, 1, kernel_size=3, padding=1),
-            nn.Tanh()
+            nn.ConvTranspose2d(64, 64,
+                               kernel_size=3, padding=1, stride=2),  # 4x4 => 7x7
+            act_fn_,
+            nn.Conv2d(64, 64,
+                      kernel_size=3, padding=1),  # 7x7 => 7x7
+            act_fn_,
+            nn.ConvTranspose2d(64, 32, kernel_size=3,
+                               output_padding=1, padding=1, stride=2),  # 7x7 => 14x14
+            act_fn_,
+            nn.Conv2d(32, 32, kernel_size=3,
+                      padding=1),  # 14x14 => 14x14
+            act_fn_,
+            nn.ConvTranspose2d(32, 1, kernel_size=3,
+                               output_padding=1, padding=1, stride=2),  # 14x14 => 28x28
+            nn.Tanh() 
         )
         # raise NotImplementedError
         #######################
@@ -130,10 +137,9 @@ class ConvDecoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        # z = z.to(self.device)
-        out = self.linear(z)
-        out = out.reshape(z.shape[0], -1, 4, 4)
-        recon_x = self.net(out)
+        z = self.linear(z)
+        z = z.reshape(z.shape[0], -1, 4, 4)
+        recon_x = self.net(z)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -155,13 +161,12 @@ class Discriminator(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        act_fn = nn.LeakyReLU(negative_slope=0.2)
-        self.z_dim = z_dim
+        _act_fn = nn.LeakyReLU(negative_slope=0.2)
         self.net = nn.Sequential(
             nn.Linear(z_dim, 512),
-            act_fn,
+            _act_fn,
             nn.Linear(512, 512),
-            act_fn,
+            _act_fn,
             nn.Linear(512, 1)
         )
         # raise NotImplementedError
@@ -180,10 +185,6 @@ class Discriminator(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        # print('z shape: ',z.shape)
-        z = z.to(self.device)
-        z = z.reshape(z.shape[0], -1, self.z_dim)
-        # print('z shape after reshape: ',z.shape)
         preds = self.net(z)
         # raise NotImplementedError
         #######################
@@ -223,8 +224,9 @@ class AdversarialAE(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        recon_x = self.decoder(self.encoder(x))
+
         z = self.encoder(x)
+        recon_x = self.decoder(z)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -238,7 +240,6 @@ class AdversarialAE(nn.Module):
             recon_x - Reconstructed image of shape [B,C,H,W]
             z_fake - Batch of latent codes for fake samples. Shape: [B,z_dim]
             lambda_ - The reconstruction coefficient (between 0 and 1).
-
         Outputs:
             recon_loss - The MSE reconstruction loss between actual input and its reconstructed version.
             gen_loss - The Generator loss for fake latent codes extracted from input.
@@ -263,6 +264,7 @@ class AdversarialAE(nn.Module):
         #######################
         return ae_loss, logging_dict
 
+
     def get_loss_discriminator(self,  z_fake):
         """
         Inputs:
@@ -283,13 +285,13 @@ class AdversarialAE(nn.Module):
                         "loss_real": None,
                         "loss_fake": None,
                         "accuracy": None}
-        disc_loss = nn.BCEWithLogitsLoss()(self.discriminator(z_fake),
-                                           torch.zeros_like(self.discriminator(z_fake)))
-        loss_real = nn.BCEWithLogitsLoss()(self.discriminator(torch.randn_like(z_fake)),
-                                           torch.ones_like(self.discriminator(torch.randn_like(z_fake))))
-        loss_fake = nn.BCEWithLogitsLoss()(self.discriminator(z_fake),
-                                           torch.zeros_like(self.discriminator(z_fake)))
-        accuracy = (torch.sum(torch.sigmoid(self.discriminator(z_fake)) < 0.5) + torch.sum(torch.sigmoid(self.discriminator(torch.randn_like(z_fake))) > 0.5)) / (z_fake.shape[0] * 2)
+        z_prior = torch.randn_like(z_fake)
+        z_prior_logits = self.discriminator(z_prior)
+        z_fake_logits = self.discriminator(z_fake)
+        loss_real = nn.BCEWithLogitsLoss()(z_prior_logits, torch.ones_like(z_prior_logits))
+        loss_fake = nn.BCEWithLogitsLoss()(z_fake_logits, torch.zeros_like(z_fake_logits))
+        disc_loss = loss_real + loss_fake
+        accuracy = (torch.sum(torch.sigmoid(z_fake_logits) < 0.5) + torch.sum(torch.sigmoid(z_prior_logits) > 0.5)) / (z_fake.shape[0] * 2)
         logging_dict["disc_loss"] = disc_loss
         logging_dict["loss_real"] = loss_real
         logging_dict["loss_fake"] = loss_fake
@@ -313,7 +315,7 @@ class AdversarialAE(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        x = self.decoder(torch.randn(batch_size, self.z_dim).to(self.device))
+        x = self.decoder(torch.randn((batch_size, self.z_dim)).to(self.device))
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -326,5 +328,3 @@ class AdversarialAE(nn.Module):
         Property function to get the device on which the generator is
         """
         return self.encoder.device
-
-

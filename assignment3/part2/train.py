@@ -96,7 +96,7 @@ def train_aae(epoch, model, train_loader,
     assert 0 <= lambda_ <= 1, "Lambda should be between 0 and 1. "
     model.train()
     train_loss = 0
-    for batch_idx, (x, _) in tqdm(enumerate(train_loader), total=len(train_loader)):
+    for batch_idx, (x, _) in enumerate(train_loader):
         x = x.to(model.device)
         #######################
         # PUT YOUR CODE HERE  #
@@ -104,7 +104,7 @@ def train_aae(epoch, model, train_loader,
         # Encoder-Decoder update
         optimizer_ae.zero_grad()
         x_recon, z = model(x)
-        ae_loss, logging_dict_ae = model.get_loss_autoencoder(x, x_recon, z)
+        ae_loss, logging_dict_ae = model.get_loss_autoencoder(x, x_recon, z, lambda_)
         ae_loss.backward()
         optimizer_ae.step()
         # raise NotImplementedError
@@ -117,7 +117,7 @@ def train_aae(epoch, model, train_loader,
         #######################
         # Discriminator update
         optimizer_disc.zero_grad()
-        disc_loss, logging_dict_disc = model.get_loss_discriminator(x)
+        disc_loss, logging_dict_disc = model.get_loss_discriminator(z.detach())
         disc_loss.backward()
         optimizer_disc.step()
         # raise NotImplementedError
@@ -179,9 +179,12 @@ def main(args):
     #######################
     # You can use the Adam optimizer for autoencoder and SGD for discriminator.
     # It is recommended to reduce the momentum (beta1) to e.g. 0.5 for Adam optimizer.
-
-    optimizer_ae = torch.optim.Adam(model.parameters(), lr=args.ae_lr, betas=(0.5, 0.999))
-    optimizer_disc = torch.optim.SGD(model.discriminator.parameters(), lr=args.d_lr)
+    encoder_params = list(model.encoder.parameters())
+    decoder_params = list(model.decoder.parameters())
+    discriminator_params = list(model.discriminator.parameters())
+    optimazer_ae_params = encoder_params+decoder_params
+    optimizer_ae = torch.optim.Adam(optimazer_ae_params, lr=args.ae_lr, betas=(0.5, 0.999))
+    optimizer_disc = torch.optim.SGD(discriminator_params, lr=args.d_lr)
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
