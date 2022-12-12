@@ -110,13 +110,13 @@ def visualize_manifold(decoder, grid_size=20):
     #######################
     # PUT YOUR CODE HERE  #
     #######################
-    z_dim = decoder.z_dim
-    percentiles = torch.linspace(0.5 / grid_size, (grid_size - 0.5) / grid_size, grid_size)
-    z_values = torch.distributions.Normal(0, 1).icdf(percentiles)
-    z1, z2 = torch.meshgrid([z_values] * z_dim)
-    z = torch.stack([z1, z2], dim=-1).reshape(-1, z_dim)
-    imgs = decoder(z).reshape(grid_size, grid_size, *decoder.img_shape)
-    img_grid = make_grid(imgs, nrow=grid_size)
+    percentiles = torch.linspace(0.5/grid_size, (grid_size-0.5)/grid_size, grid_size)
+    z = torch.distributions.Normal(0, 1).icdf(percentiles) # z is a grid of values, using hint 1
+    z = torch.stack(torch.meshgrid(z, z), dim=-1) # grid is a grid of 2D points
+    imgs = decoder(z).softmax(dim=1) # imgs is a grid of images
+    # samples from multinomial distribution
+    samples = torch.multinomial(imgs, 1).squeeze(1).float() / imgs.max()
+    img_grid = make_grid(samples, nrow=grid_size) # img_grid is a grid of images
     # raise NotImplementedError
     #######################
     # END OF YOUR CODE    #
