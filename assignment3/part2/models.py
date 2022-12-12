@@ -67,8 +67,7 @@ class ConvEncoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        x = x.to(self.device)
-        z = self.net(x)
+        z = self.net(x.to(self.device))
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
@@ -137,9 +136,9 @@ class ConvDecoder(nn.Module):
         #######################
         # PUT YOUR CODE HERE  #
         #######################
-        z = self.linear(z)
-        z = z.reshape(z.shape[0], -1, 4, 4)
-        recon_x = self.net(z)
+        out = self.linear(z)
+        out = out.reshape(out.shape[0], -1, 4, 4)
+        recon_x = self.net(out)
         # raise NotImplementedError
         #######################
         # END OF YOUR CODE    #
